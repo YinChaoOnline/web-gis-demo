@@ -25,7 +25,7 @@
     <![endif]-->
 
     <div id="mapDiv">
-
+        <div id="legendDiv"></div>
     </div>
 
     <script src="js/vendor/modernizr-3.5.0.min.js"></script>
@@ -35,10 +35,11 @@
     <script>
         dojo.require("esri.map");
         dojo.require("esri.layers.FeatureLayer");
+        dojo.require("esri.dijit.Legend");
 
         var global={}; //global objects
         global.urls={
-            restaurants:"http://192.168.58.170:6080/arcgis/rest/services//BelizeEdit/MapServer/0",
+            restaurant:"http://192.168.58.170:6080/arcgis/rest/services//BelizeEdit/MapServer/0",
             belizeCountry:"http://192.168.58.170:6080/arcgis/rest/services//BelizeEdit/MapServer/1"
         }
 
@@ -55,10 +56,14 @@
             });
 
             //add layers
-            var layerRestaurants=new esri.layers.FeatureLayer(global.urls.restaurants);
+            var layerRestaurants=new esri.layers.FeatureLayer(global.urls.restaurant);
             var layerBelizeCountry=new esri.layers.FeatureLayer(global.urls.belizeCountry);
 
-            global.map.addLayers([layerBelizeCountry,layerRestaurants]);
+            global.map.addLayers([layerBelizeCountry,layerRestaurants]);//polygon layer then point layer
+
+            //add the legend
+            var legend = new esri.dijit.Legend({map:global.map}, "legendDiv");
+            legend.startup();
         }
 
         dojo.addOnLoad(startUp);
