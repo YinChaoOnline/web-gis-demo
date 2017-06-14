@@ -5,16 +5,18 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-    <title></title>
+    <title>Best Restaurants in Belize</title>
 
-    <meta name="description" content="">
+    <meta name="description" content="Web GIS application,map,restaurants,Belize">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <!-- Place favicon.ico in the root directory -->
 
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="http://192.168.58.170/arcgis_js_api/library/3.20/3.20/esri/css/esri.css">
 </head>
 
 <body>
@@ -22,13 +24,45 @@
         <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
     <![endif]-->
 
-    <!-- Add your site or application content here -->
-    <p>Hello world! This is HTML5 Boilerplate.</p>
+    <div id="mapDiv">
 
+    </div>
 
     <script src="js/vendor/modernizr-3.5.0.min.js"></script>
     <script src="js/main.js"></script>
+    <script src="http://192.168.58.170/arcgis_js_api/library/3.20/3.20/init.js"></script>
 
+    <script>
+        dojo.require("esri.map");
+        dojo.require("esri.layers.FeatureLayer");
+
+        var global={}; //global objects
+        global.urls={
+            restaurants:"http://192.168.58.170:6080/arcgis/rest/services//BelizeEdit/MapServer/0",
+            belizeCountry:"http://192.168.58.170:6080/arcgis/rest/services//BelizeEdit/MapServer/1"
+        }
+
+        function startUp() {
+            //create a map with an extent
+            //create the spatial reference object and extent object.
+            var sr = new esri.SpatialReference({
+                wkid: 4326
+            });
+            var startExtent = new esri.geometry.Extent(-88.27, 17.47, -88.16, 17.54, sr);
+
+            global.map = new esri.Map("mapDiv",{
+                extent:startExtent
+            });
+
+            //add layers
+            var layerRestaurants=new esri.layers.FeatureLayer(global.urls.restaurants);
+            var layerBelizeCountry=new esri.layers.FeatureLayer(global.urls.belizeCountry);
+
+            global.map.addLayers([layerBelizeCountry,layerRestaurants]);
+        }
+
+        dojo.addOnLoad(startUp);
+    </script>
 
     <!-- Google Analytics: change UA-XXXXX-Y to be your site's ID. -->
     <!--
