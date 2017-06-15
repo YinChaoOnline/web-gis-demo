@@ -19,11 +19,14 @@ body {
     position: absolute;
     right: 35px;
     top: 35px;
+    width: 550px;
     z-index: 10000;
     border: 1px dotted black;
     border-radius: 6px;
     padding: 10px 20px;
     background-color: #eee;
+    max-height: 400px;
+    overflow: scroll;
 }
 
 

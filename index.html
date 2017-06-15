@@ -30,38 +30,47 @@
         <div id="locateButtonDiv"></div>
         <div id="legendDiv"></div>
         <div id="serachDiv">
-            <form class="form-inline">
+            <form class="form-horizontal">
                 <div class="form-group">
-                    <label for="txtRestaurantName">Restaurant Name:</label>
-                    <input type="text" class="form-control" id="txtRestaurantName" placeholder="enter restaurant name">
-                    <input class="btn btn-primary" type='button' value='Query' onclick='executeQuery()'>
+                    <label class="col-md-2 control-label" for="txtRestaurantName">Restaurant Name:</label>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="txtRestaurantName" placeholder="enter restaurant name">
+                    </div>
+                    <div class="col-md-4">
+                        <input class="btn btn-primary" type='submit' value='Query' onclick='executeQuery()'>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label for="selectCategories">Category:</label>
-                    <select class="form-control" id='selectCategories' onchange="onCategoryChange()">
-                        <option value="99" selected>All</option>
-                        <option value="0">Diner</option>
-                        <option value="1">Restaurant</option>
-                        <option value="2">Cafe</option>
-                        <option value="4">Lounge</option>
-                        <option value="3">Bar</option>
-                    </select>
+                    <label class="col-md-2 control-label" for="selectCategories">Category:</label>
+                    <div class="col-md-10">
+                        <select class="form-control" id='selectCategories' onchange="onCategoryChange()">
+                            <option value="99" selected>All</option>
+                            <option value="0">Diner</option>
+                            <option value="1">Restaurant</option>
+                            <option value="2">Cafe</option>
+                            <option value="4">Lounge</option>
+                            <option value="3">Bar</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label for="selectRating">Rating:</label>
-                    <select class="form-control" id='selectRating' onchange='onRatingChange()'>
-                        <option value="99" selected>All</option>
-                        <option value="1">Poor</option>
-                        <option value="2">Fair</option>
-                        <option value="3">Average</option>
-                        <option value="4">Good</option>
-                        <option value="5">Excellent</option>
-                    </select>
+                    <label class="col-md-2 control-label" for="selectRating">Rating:</label>
+                    <div class="col-md-10">
+                        <select class="form-control" id='selectRating' onchange='onRatingChange()'>
+                            <option value="99" selected>All</option>
+                            <option value="1">Poor</option>
+                            <option value="2">Fair</option>
+                            <option value="3">Average</option>
+                            <option value="4">Good</option>
+                            <option value="5">Excellent</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <input type='button' value='GPS Locate' onclick='showGPSLocation()'>
+                    <input class="btn btn-primary center-block" type='button' value='GPS Locate' onclick='showGPSLocation()'>
                 </div>
             </form>
+            <div id="searchResultDiv"></div>
         </div>
     </div>
 
@@ -87,7 +96,7 @@
         }
 
         //the POI layer
-        global.POILayer=null;
+        global.POILayer = null;
 
         // category and rating default value
         global.selectedCategories = 99;
@@ -96,6 +105,7 @@
         //query
         global.queryResults = null;
         global.queryTask = null;
+        global.queryResults = null;
 
         function startUp() {
             //create a map with an extent
@@ -118,7 +128,9 @@
                 outFields: ["*"]
             });
 
-            global.POILayer=layerRestaurants;
+            if (!global.POILayer) {
+                global.POILayer = layerRestaurants;
+            }
             global.map.addLayers([layerBelizeCountry, layerRestaurants]); //polygon layer then point layer
 
             //add the legend
@@ -161,6 +173,12 @@
                 "<b>Description：<b>${description}";
             var infoTemplate = new esri.InfoTemplate("Attribute", template);
             layerRestaurants.setInfoTemplate(infoTemplate);
+
+            //query
+            //Create query task
+            if (!global.queryTask) {
+                global.queryTask = new esri.tasks.QueryTask(global.urls.restaurant);
+            }
         }
 
         dojo.addOnLoad(startUp);
@@ -180,7 +198,7 @@
         }
 
         function filterlayer() {
-            var expression = "1 = 1";//fetch all features
+            var expression = "1 = 1"; //fetch all features
             if (global.selectedCategories != 99) {
                 expression = expression + " AND category = " + global.selectedCategories;
             }
@@ -188,6 +206,118 @@
                 expression = expression + " AND rating = " + global.selectedRating;
             }
             global.POILayer.setDefinitionExpression(expression);
+        }
+
+        function executeQuery() {
+            var restaurantName = document.getElementById('txtRestaurantName').value;
+            var query = new esri.tasks.Query();
+            query.outFields = ["objectid", "name", "rating"]; //feature service layer field name ,case sensitive
+            query.returnGeometry = true;
+
+            //support search ignoring case，arcgis desktop query sql syntax：UPPER(NAME) LIKE '%M%'
+            query.where = "UPPER(NAME) like '%" + restaurantName.toUpperCase() + "%'";
+            // query.text = restaurantName;
+            global.queryTask.execute(query, showResults);
+        }
+
+        function showResults(results) {
+            global.queryResults = results;
+            //we are going to build our result html string
+            var resultHtml = "";
+            for (var i = 0; i < results.features.length; i++) {
+                //for each single feature or record in the result
+                var feature = results.features[i];
+
+                //display the name()
+                resultHtml = resultHtml +
+                    "<b>Name:</b> <a href='#' onclick='showRestaurant(" +
+                    i +
+                    ")'>" +
+                    feature.attributes["name"] +
+                    "</a><Br>";
+
+                //display the rating
+                resultHtml = resultHtml + "<b>Rating:</b> " + feature.attributes["rating"];
+
+                //create a place holder for each review to be populated later
+                resultHtml = resultHtml +
+                    "<div id = 'review" +
+                    feature.attributes["objectid"] +
+                    "'></div>";
+
+                //create a place holder for each attachment picture to be populated later
+                resultHtml = resultHtml +
+                    "<div id = 'picture" +
+                    feature.attributes["objectid"] +
+                    "'></div>";
+
+                //new line
+                resultHtml = resultHtml + "<br><br>";
+            }
+
+            //add the results to myresults element.
+            document.getElementById("searchResultDiv").innerHTML = resultHtml;
+
+            AddReviews(results);
+
+            //AddPictures(results);
+        }
+
+        function showRestaurant(i) {
+            //get the clicked feature
+            if (!global.queryResults) {
+                console.log("no searching results");
+                return;
+            }
+
+            var feature = global.queryResults.features[i];
+            //mark up symbol are for points.
+            var symbol = new esri.symbol.SimpleMarkerSymbol();
+            //set the size
+            symbol.setSize(50);
+            //and the color (yellow) and transparency of 50% (0.5)
+            symbol.setColor(new dojo.Color([255, 255, 0, 0.5]));
+
+            //finally set the symbol to the record
+            feature.setSymbol(symbol);
+
+            //clear any graphics on the map
+            global.map.graphics.clear();
+            //so we only add this one
+            global.map.graphics.add(feature);
+        }
+
+        function AddReviews(results) {
+            for (var i = 0; i < results.features.length; i++) {
+                //for each single feature or record in the result
+                var record = results.features[i];
+
+                //Create relationship query object
+                var relatedReviews = new esri.tasks.RelationshipQuery();
+                //return all fields in the related table.
+                relatedReviews.outFields = ["*"];
+                //The relationship id is zero based on the url
+                relatedReviews.relationshipId = 0;
+                //get the object id
+                relatedReviews.objectIds = [record.attributes["objectid"]];
+
+                //execute the query and then call the RelationQueryCompelete
+                global.POILayer.queryRelatedFeatures(relatedReviews, RelationQueryCompelete);
+            }
+        }
+
+        function RelationQueryCompelete(relatedRecords) {
+            for (var oid in relatedRecords) {
+
+                var fset = relatedRecords[oid];
+                //get the first related record
+                var firstrecord = fset.features[0];
+                var review = firstrecord.attributes["review"];
+                var user = firstrecord.attributes["user_"];//use the map service exact field name
+
+                //update the div id with the review and the user
+                document.getElementById("review" + oid).innerHTML = "<i>" + user + " comment: <br>" + review + "</i>";
+            }
         }
     </script>
 
