@@ -37,10 +37,10 @@
         dojo.require("esri.layers.FeatureLayer");
         dojo.require("esri.dijit.Legend");
 
-        var global={}; //global objects
-        global.urls={
-            restaurant:"http://192.168.58.170:6080/arcgis/rest/services//BelizeEdit/MapServer/0",
-            belizeCountry:"http://192.168.58.170:6080/arcgis/rest/services//BelizeEdit/MapServer/1"
+        var global = {}; //global objects
+        global.urls = {
+            restaurant: "http://192.168.58.170:6080/arcgis/rest/services//BelizeEdit/MapServer/0",
+            belizeCountry: "http://192.168.58.170:6080/arcgis/rest/services//BelizeEdit/MapServer/1"
         }
 
         function startUp() {
@@ -51,19 +51,38 @@
             });
             var startExtent = new esri.geometry.Extent(-88.27, 17.47, -88.16, 17.54, sr);
 
-            global.map = new esri.Map("mapDiv",{
-                extent:startExtent
+            global.map = new esri.Map("mapDiv", {
+                extent: startExtent
             });
 
-            //add layers
-            var layerRestaurants=new esri.layers.FeatureLayer(global.urls.restaurant);
-            var layerBelizeCountry=new esri.layers.FeatureLayer(global.urls.belizeCountry);
+            //add layers; NOTICE: outfields should be declared,默认只显示几个重要字段;
+            var layerRestaurants = new esri.layers.FeatureLayer(global.urls.restaurant, {
+                outFields: ["*"]
+            });
+            var layerBelizeCountry = new esri.layers.FeatureLayer(global.urls.belizeCountry, {
+                outFields: ["*"]
+            });
 
-            global.map.addLayers([layerBelizeCountry,layerRestaurants]);//polygon layer then point layer
+            global.map.addLayers([layerBelizeCountry, layerRestaurants]); //polygon layer then point layer
 
             //add the legend
-            var legend = new esri.dijit.Legend({map:global.map}, "legendDiv");
+            var legend = new esri.dijit.Legend({
+                map: global.map
+            }, "legendDiv");
             legend.startup();
+
+
+            //define and add infotemplate to POI layer
+            /*
+             *1. make sure that all the to-be-showed fields should be included in featurelayer's outfields;
+             *2. field name is case sensitive,use the featurelayer's exact field name;
+             */
+            var template = "<b>Name：<b>${name}<br>" +
+                "<b>Rating：<b>[${rating}/5]<br>" +
+                "<b>Offcial Website：<b><a href='${website}'>${website}</a><br>" +
+                "<b>Description：<b>${description}";
+            var infoTemplate = new esri.InfoTemplate("Attribute", template);
+            layerRestaurants.setInfoTemplate(infoTemplate);
         }
 
         dojo.addOnLoad(startUp);
