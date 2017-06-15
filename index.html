@@ -30,14 +30,15 @@
         <div id="locateButtonDiv"></div>
         <div id="legendDiv"></div>
         <div id="serachDiv">
-            <form class="form-horizontal">
+            <!--AVOID when enter key ,don't reload the page-->
+            <form class="form-horizontal" onkeypress="return event.keyCode != 13">
                 <div class="form-group">
                     <label class="col-md-2 control-label" for="txtRestaurantName">Restaurant Name:</label>
                     <div class="col-md-6">
                         <input type="text" class="form-control" id="txtRestaurantName" placeholder="enter restaurant name">
                     </div>
                     <div class="col-md-4">
-                        <input class="btn btn-primary" type='submit' value='Query' onclick='executeQuery()'>
+                        <input class="btn btn-primary" id="btnSearch" type='button' value='Query' onclick='executeQuery()'>
                     </div>
                 </div>
                 <div class="form-group">
