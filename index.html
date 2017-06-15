@@ -260,7 +260,7 @@
 
             AddReviews(results);
 
-            //AddPictures(results);
+            AddPictures(results);
         }
 
         function showRestaurant(i) {
@@ -313,11 +313,35 @@
                 //get the first related record
                 var firstrecord = fset.features[0];
                 var review = firstrecord.attributes["review"];
-                var user = firstrecord.attributes["user_"];//use the map service exact field name
+                var user = firstrecord.attributes["user_"]; //use the map service exact field name
 
                 //update the div id with the review and the user
                 document.getElementById("review" + oid).innerHTML = "<i>" + user + " comment: <br>" + review + "</i>";
             }
+        }
+
+        function AddPictures(results) {
+            for (var i = 0; i < results.features.length; i++) {
+                //for each single feature or record in the result
+                var record = results.features[i];
+                // Attachment code goes here
+                global.POILayer.queryAttachmentInfos([record.attributes["objectid"]], PicturesQueryComplete);
+            }
+        }
+
+        function PicturesQueryComplete(pictures) {
+            //in case of no pictures quit.
+            if (pictures.length == 0){
+                return;
+            }
+
+            //TODO:add all pictures; now only get the first picture
+            var p = pictures[0];
+            //set it to its place holder
+            document.getElementById("picture" + p.objectId).innerHTML =
+                "<img src = '" +
+                p.url +
+                "' width = '200px' height ='130px'>";
         }
     </script>
 
