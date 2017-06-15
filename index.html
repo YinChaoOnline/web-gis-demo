@@ -40,6 +40,7 @@
         dojo.require("esri.dijit.Legend");
         dojo.require("esri.dijit.HomeButton");
         dojo.require("esri.dijit.LocateButton");
+        dojo.require("esri.dijit.Scalebar");
 
         var global = {}; //global objects
         global.urls = {
@@ -56,6 +57,7 @@
             var startExtent = new esri.geometry.Extent(-88.27, 17.47, -88.16, 17.54, sr);
 
             global.map = new esri.Map("mapDiv", {
+                logo:false,
                 extent: startExtent
             });
 
@@ -87,6 +89,16 @@
                 map: global.map
             }, "locateButtonDiv");
             esriDijitLocateButton.startup();
+
+            //add scalebar
+            var scalebar = new esri.dijit.Scalebar({
+                map: global.map,
+                attachTo: "bottom-right",
+                // "dual" displays both miles and kilometers
+                // "english" is the default, which displays miles
+                // use "metric" for kilometers
+                scalebarUnit: "dual"
+            });
 
             //define and add infotemplate to POI layer
             /*

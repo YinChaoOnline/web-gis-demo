@@ -43,3 +43,8 @@ body {
     left: 20px;
     z-index: 50;
 }
+
+/*override esri.css scalebar style*/
+.scalebar_bottom-right {
+    right: 150px !important;
+}
