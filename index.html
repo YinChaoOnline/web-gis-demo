@@ -25,6 +25,8 @@
     <![endif]-->
 
     <div id="mapDiv">
+        <div id="homeButtonDiv"></div>
+        <div id="locateButtonDiv"></div>
         <div id="legendDiv"></div>
     </div>
 
@@ -36,6 +38,8 @@
         dojo.require("esri.map");
         dojo.require("esri.layers.FeatureLayer");
         dojo.require("esri.dijit.Legend");
+        dojo.require("esri.dijit.HomeButton");
+        dojo.require("esri.dijit.LocateButton");
 
         var global = {}; //global objects
         global.urls = {
@@ -66,11 +70,23 @@
             global.map.addLayers([layerBelizeCountry, layerRestaurants]); //polygon layer then point layer
 
             //add the legend
-            var legend = new esri.dijit.Legend({
+            var esriDijitLegend = new esri.dijit.Legend({
                 map: global.map
             }, "legendDiv");
-            legend.startup();
+            esriDijitLegend.startup();
 
+
+            //add the home button
+            var esriDijitHomeButton = new esri.dijit.HomeButton({
+                map: global.map
+            }, "homeButtonDiv");
+            esriDijitHomeButton.startup();
+
+            //add the locate button
+            esriDijitLocateButton = new esri.dijit.LocateButton({
+                map: global.map
+            }, "locateButtonDiv");
+            esriDijitLocateButton.startup();
 
             //define and add infotemplate to POI layer
             /*

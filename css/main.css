@@ -23,9 +23,23 @@ body {
     /*overflow: scroll;*/
     max-width: 300px;
     max-height: 500px;
-    z-index:10000;
+    z-index: 10000;
     padding-top: 12px;
     padding-left: 12px;
-    border:1px dotted black;
+    border: 1px dotted black;
     background-color: #eee;
+}
+
+#homeButtonDiv {
+    position: absolute;
+    top: 95px;
+    left: 20px;
+    z-index: 50;
+}
+
+#locateButtonDiv {
+    position: absolute;
+    top: 135px;
+    left: 20px;
+    z-index: 50;
 }
