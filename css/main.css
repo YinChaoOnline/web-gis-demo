@@ -13,6 +13,20 @@ body {
 }
 
 
+/*search div*/
+
+#serachDiv {
+    position: absolute;
+    right: 35px;
+    top: 35px;
+    z-index: 10000;
+    border: 1px dotted black;
+    border-radius: 6px;
+    padding: 10px 20px;
+    background-color: #eee;
+}
+
+
 /*esri widgets*/
 
 #legendDiv {
@@ -44,7 +58,9 @@ body {
     z-index: 50;
 }
 
+
 /*override esri.css scalebar style*/
+
 .scalebar_bottom-right {
     right: 150px !important;
 }

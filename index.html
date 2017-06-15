@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="http://192.168.58.170/arcgis_js_api/library/3.20/3.20/esri/css/esri.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
 
 <body>
@@ -28,9 +29,45 @@
         <div id="homeButtonDiv"></div>
         <div id="locateButtonDiv"></div>
         <div id="legendDiv"></div>
+        <div id="serachDiv">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="txtRestaurantName">Restaurant Name:</label>
+                    <input type="text" class="form-control" id="txtRestaurantName" placeholder="enter restaurant name">
+                    <input class="btn btn-primary" type='button' value='Query' onclick='executeQuery()'>
+                </div>
+                <div class="form-group">
+                    <label for="selectCategories">Category:</label>
+                    <select class="form-control" id='selectCategories' onchange="onCategoryChange()">
+                        <option value="99" selected>All</option>
+                        <option value="0">Diner</option>
+                        <option value="1">Restaurant</option>
+                        <option value="2">Cafe</option>
+                        <option value="4">Lounge</option>
+                        <option value="3">Bar</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="selectRating">Rating:</label>
+                    <select class="form-control" id='selectRating' onchange='onRatingChange()'>
+                        <option value="99" selected>All</option>
+                        <option value="1">Poor</option>
+                        <option value="2">Fair</option>
+                        <option value="3">Average</option>
+                        <option value="4">Good</option>
+                        <option value="5">Excellent</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type='button' value='GPS Locate' onclick='showGPSLocation()'>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script src="js/vendor/modernizr-3.5.0.min.js"></script>
+    <script src="js/vendor/jquery-3.2.0.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="js/main.js"></script>
     <script src="http://192.168.58.170/arcgis_js_api/library/3.20/3.20/init.js"></script>
 
@@ -57,7 +94,7 @@
             var startExtent = new esri.geometry.Extent(-88.27, 17.47, -88.16, 17.54, sr);
 
             global.map = new esri.Map("mapDiv", {
-                logo:false,
+                logo: false,
                 extent: startExtent
             });
 
