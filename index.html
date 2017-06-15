@@ -80,10 +80,22 @@
         dojo.require("esri.dijit.Scalebar");
 
         var global = {}; //global objects
+        global.map = null;
         global.urls = {
             restaurant: "http://192.168.58.170:6080/arcgis/rest/services//BelizeEdit/MapServer/0",
             belizeCountry: "http://192.168.58.170:6080/arcgis/rest/services//BelizeEdit/MapServer/1"
         }
+
+        //the POI layer
+        global.POILayer=null;
+
+        // category and rating default value
+        global.selectedCategories = 99;
+        global.selectedRating = 99;
+
+        //query
+        global.queryResults = null;
+        global.queryTask = null;
 
         function startUp() {
             //create a map with an extent
@@ -106,6 +118,7 @@
                 outFields: ["*"]
             });
 
+            global.POILayer=layerRestaurants;
             global.map.addLayers([layerBelizeCountry, layerRestaurants]); //polygon layer then point layer
 
             //add the legend
@@ -151,6 +164,31 @@
         }
 
         dojo.addOnLoad(startUp);
+
+        function onCategoryChange() {
+            var value = document.getElementById('selectCategories').value;
+            global.selectedCategories = value;
+            //call the filter
+            filterlayer();
+        }
+
+        function onRatingChange() {
+            var value = document.getElementById('selectRating').value;
+            global.selectedRating = value;
+            //call the filter
+            filterlayer();
+        }
+
+        function filterlayer() {
+            var expression = "1 = 1";//fetch all features
+            if (global.selectedCategories != 99) {
+                expression = expression + " AND category = " + global.selectedCategories;
+            }
+            if (global.selectedRating != 99) {
+                expression = expression + " AND rating = " + global.selectedRating;
+            }
+            global.POILayer.setDefinitionExpression(expression);
+        }
     </script>
 
     <!-- Google Analytics: change UA-XXXXX-Y to be your site's ID. -->
