@@ -91,9 +91,11 @@
 
         var global = {}; //global objects
         global.map = null;
+        //feature service url;map service don't support web edit,won't use enterprise database
         global.urls = {
-            restaurant: "http://192.168.58.170:6080/arcgis/rest/services//BelizeEdit/MapServer/0",
-            belizeCountry: "http://192.168.58.170:6080/arcgis/rest/services//BelizeEdit/MapServer/1"
+            restaurant: "http://192.168.58.170:6080/arcgis/rest/services//BelizeEdit/FeatureServer/0",
+            belizeCountry: "http://192.168.58.170:6080/arcgis/rest/services//BelizeEdit/FeatureServer/1",
+            reviewTable: "http://192.168.58.170:6080/arcgis/rest/services//BelizeEdit/FeatureServer/2"
         }
 
         //the POI layer
@@ -252,6 +254,16 @@
                     feature.attributes["objectid"] +
                     "'></div>";
 
+                //create text box for the review marked with the objectid
+                resultHtml = resultHtml + "<br>Review: <input type = 'text' id = 'txtReview" + feature.attributes["objectid"] + "' > ";
+                //another one for the rating.
+                resultHtml = resultHtml + "<br>Rating: <input type = 'text' id = 'txtRating" + feature.attributes["objectid"] + "' > ";
+                resultHtml = resultHtml + "<form id = 'frm" +
+                    feature.attributes["objectid"] + "'><input type = 'file' name = 'attachment'/ > </form>";
+
+                //and a button to call the function addnewreview
+                resultHtml = resultHtml + "<br><input type = 'button' value = 'Add' onclick ='AddNewReview(" + feature.attributes["objectid"] + ")'>";
+
                 //new line
                 resultHtml = resultHtml + "<br><br>";
             }
@@ -332,7 +344,7 @@
 
         function PicturesQueryComplete(pictures) {
             //in case of no pictures quit.
-            if (pictures.length == 0){
+            if (pictures.length == 0) {
                 return;
             }
 
@@ -343,6 +355,29 @@
                 "<img src = '" +
                 p.url +
                 "' width = '200px' height ='130px'>";
+        }
+
+        function AddNewReview(oid) {
+            var objectid = oid;
+            var review = document.getElementById('txtReview' + oid).value;
+            var rating = document.getElementById('txtRating' + oid).value;
+            var newReview = {
+                attributes: {
+                    venue_objectid: objectid,
+                    review: review,
+                    rating: rating,
+                    user_: "YIN Chao" // specific user
+                }
+            };
+            //open the review table,as we seen in chapter 4 it has an id of 2
+            var reviewtable = new esri.layers.FeatureLayer(global.urls.reviewTable);
+            //apply edits and pass the review record
+            reviewtable.applyEdits([newReview], null, null, null, null);
+
+            //add POI's attachment a picture
+            global.POILayer.addAttachment(oid,document.getElementById("frm"+oid), null, null);
+
+            alert("review has been added successfully!")
         }
     </script>
 
